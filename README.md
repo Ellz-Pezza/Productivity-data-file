@@ -3,7 +3,8 @@
 
 ### About the Project
 
-Sql code used to pull South West Productivity data (currently from NCDR) then utilising R to wrangle the data than create an Excel that shows the data per Trust or System.
+Sql code used to pull South West Productivity and ERF data (currently from NCDR) then utilising R to wrangle the data than create an Excel that shows the data per Trust or System. The A&G data is downloaded from https://www.england.nhs.uk/statistics/statistical-work-areas/outpatient-transformation/specialist-advice/![image](https://github.com/user-attachments/assets/67aed9e1-34c3-4148-a97c-1c9bae211b81)
+
 
 ### Project Stucture
 
@@ -25,11 +26,11 @@ To get a local copy up and running follow these simple steps.
 
 To clone the repo:
 
-`git clone https://github.com/nhsx/Productivity-data-file
+`git clone https://github.com/nhsx/data-file
 
 
 #### Outputs
-Excel file per Trust and System
+Excel file per Trust and System or by provider and Commissioner 
 
 #### Datasets
 [NHSE_SUSPlus_Reporting].[Data].[PAT_Intermediate_Table_OP]
