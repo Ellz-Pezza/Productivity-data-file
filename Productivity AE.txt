@@ -1,0 +1,67 @@
+SELECT 	
+	    CASE WHEN Provider_Current = 'RD3' THEN 'R0D'
+	 WHEN Provider_Current = 'RDZ' THEN 'R0D'
+	 WHEN Provider_Current = 'RBZ' THEN 'RH8'
+	 WHEN Provider_Current = 'RA3' THEN 'RA7'
+	 WHEN Provider_Current = 'RBA' THEN 'RH5'
+	 WHEN Provider_Current = 'R1G' THEN 'RA9'
+	 WHEN Provider_Current = 'RVJ13' THEN 'RVJ'
+	 WHEN Provider_Current = 'RA4' THEN 'RH5'
+	 ELSE Provider_Current END AS 'Provider_Current'
+
+  ,CASE WHEN o.orgname = 'ROYAL DEVON AND EXETER NHS FOUNDATION TRUST' THEN 'ROYAL DEVON UNIVERSITY HEALTHCARE NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'TAUNTON AND SOMERSET NHS FOUNDATION TRUST' THEN 'SOMERSET NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'NORTHERN DEVON HEALTHCARE NHS TRUST' THEN 'ROYAL DEVON UNIVERSITY HEALTHCARE NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'THE ROYAL BOURNEMOUTH AND CHRISTCHURCH HOSPITALS NHS FOUNDATION TRUST' THEN 'UNIVERSITY HOSPITAL DORSET NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'POOLE HOSPITAL NHS FOUNDATION TRUST' THEN 'UNIVERSITY HOSPITAL DORSET NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'TORBAY AND SOUTHERN DEVON HEALTH AND CARE NHS TRUST' THEN 'TORBAY AND SOUTH DEVON NHS FOUNDATION TRUST'
+	 When o.orgname = 'EMERSONS GREEN NHS TREATMENT CENTRE' THEN 'NORTH BRISTOL NHS TRUST'
+	  When o.orgname = 'YEOVIL DISTRICT HOSPITAL NHS FOUNDATION TRUST' THEN 'SOMERSET NHS FOUNDATION TRUST'	 ELSE o.orgname  END AS 'orgname'
+
+	,LEFT(ae.Dimention_7,5) as 'HRG'
+	,PAT_Commissioner_Type
+		
+	,DATEPART(MONTH,ae.[Attendance_Date]) AS 'Month'
+	,Datepart(Year,	ae.[Attendance_Date]) as 'Year'
+	
+	,ae.[Dimention_1]	
+	
+	,ae.[Attendance_Date]
+	,SUM(ae.[adjusted]) as 'Total_Activity(adj)'
+	,SUM(ae.[unadjusted]) as 'Total_Activity(unadj)'
+	,o.stpname
+	,o.stpcode
+	--,SUM(c.Unit_Cost_all) as Unit_cost
+
+FROM [NHSE_SUSPlus_Reporting].[Data].[PAT_Intermediate_Table_AE] ae
+
+--left join [NHSI_Sandbox].[Everyone].[vw_RefCost_AE_National_1718] as c
+--on ae.[AEA_Ident_min] = c.[AEA_Ident]
+
+left join [NHSI_Sandbox].[Everyone].[vw_org_ref] as o
+on ae.Provider_Current = o.orgcode
+
+WHERE 			
+	ae.[Attendance_Date] >= '2024-04-01'
+	and ae.[Attendance_Date] < '2025-04-01'
+	and ae.[Commissioner_Type] <> 'Private Patient'
+	and ae.[Provider_Current] like 'R%'
+	and ae.[Provider_Current] <> 'RDY'
+	and ae.[Provider_Current] <> 'RTQ'
+	and ae.[Provider_Current] <> 'RJ8'
+	and o.regionname = 'South West'
+	
+	
+GROUP BY	
+
+Provider_Current
+,orgname
+,LEFT(ae.Dimention_7,5) 
+,PAT_Commissioner_Type
+,DATEPART(MONTH,ae.[Attendance_Date])
+,Datepart(Year,	ae.[Attendance_Date])
+,ae.[Dimention_1]	
+,ae.[Attendance_Date]
+,o.stpname
+,o.stpcode
+GO

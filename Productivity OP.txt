@@ -1,0 +1,130 @@
+with cte_op as (SELECT						
+	CASE WHEN Provider_Current = 'RD3' THEN 'R0D'
+	 WHEN Provider_Current = 'RDZ' THEN 'R0D'
+	 WHEN Provider_Current = 'RBZ' THEN 'RH8'
+	 WHEN Provider_Current = 'RA3' THEN 'RA7'
+	 WHEN Provider_Current = 'RBA' THEN 'RH5'
+	 WHEN Provider_Current = 'R1G' THEN 'RA9'
+	 WHEN Provider_Current = 'R1G' THEN 'RA9'
+	 WHEN Provider_Current = 'RA4' THEN 'RH5'
+	 ELSE Provider_Current END AS 'Provider_Current'
+	 ,CASE WHEN o.orgname = 'ROYAL DEVON AND EXETER NHS FOUNDATION TRUST' THEN 'ROYAL DEVON UNIVERSITY HEALTHCARE NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'TAUNTON AND SOMERSET NHS FOUNDATION TRUST' THEN 'SOMERSET NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'NORTHERN DEVON HEALTHCARE NHS TRUST' THEN 'ROYAL DEVON UNIVERSITY HEALTHCARE NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'THE ROYAL BOURNEMOUTH AND CHRISTCHURCH HOSPITALS NHS FOUNDATION TRUST' THEN 'UNIVERSITY HOSPITAL DORSET NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'POOLE HOSPITAL NHS FOUNDATION TRUST' THEN 'UNIVERSITY HOSPITAL DORSET NHS FOUNDATION TRUST'
+	 WHEN o.orgname  = 'TORBAY AND SOUTHERN DEVON HEALTH AND CARE NHS TRUST' THEN 'TORBAY AND SOUTH DEVON NHS FOUNDATION TRUST'
+	 When o.orgname = 'EMERSONS GREEN NHS TREATMENT CENTRE' THEN 'NORTH BRISTOL NHS TRUST'
+	 When o.orgname = 'YEOVIL DISTRICT HOSPITAL NHS FOUNDATION TRUST' THEN 'SOMERSET NHS FOUNDATION TRUST'	
+	 ELSE o.orgname  END AS 'orgname'	
+	,op.Dimention_2
+	,right(op.Dimention_3,3) as 'Speciality Code'	
+	,Left(op.Dimention_3,3)	as 'TFC'	
+	,left(op.Dimention_7,5) as 'HRG'
+	,case when op.Der_Procedure_All is not null then 'Procedure' else 'NoProcedure' end as 'CodedProcedure'
+	,DATEPART(MONTH,op.[Attendance_Date]	) AS 'Month'
+	,Datepart(Year,	op.[Attendance_Date]	) as 'Year'
+	,CASE					
+		WHEN [Dimention_1] LIKE 'Follow%' THEN 'Outpatient Follow-Up'
+		WHEN [Dimention_1] LIKE '1st%' THEN 'Outpatient First Appointment'
+	END as [High_Level_Pod]			
+	,SUM(op.[unadjusted]) as 'Total_Activity(Unadj)'
+	,SUM(op.[adjusted]) as 'Total_Activity(adj)'
+	,[Attendance_Date]
+	,o.stpname
+	,PAT_Commissioner_Type
+FROM [NHSE_SUSPlus_Reporting].[Data].[PAT_Intermediate_Table_OP] as op
+
+left join [NHSI_Sandbox].[Everyone].[vw_org_ref] as o
+on op.[Provider_Current] = o.orgcode 
+
+WHERE						
+	[Attendance_Date] >= '2023-04-01' 			
+	and [Attendance_Date] < '2024-04-01'
+	and Commissioner_Type IN('CCG', 'CCG*'
+		, 'NHSE (Specialised Commissoning)'
+		, 'NHSE (Military Personnel)', 'NHSE (Offender Health)', 'NHSE (Secondary Dental)', 'NHSE (Military Personnel)*', 'NHSE (Offender Health)*', 'NHSE (Secondary Dental)*', 'NHSE (Public Health Screening)'
+		, 'Devolved Administration', 'Devolved Administration*', 'Reciprocal OSVs', 'Non-reciprocal OSVs', 'OSV (Type Unknown)', 'OSV (Type Unknown)*')
+ 	and [Dimention_1] <> 'Unknown Appointment Type'
+	and op.[Provider_Current] like 'R%'
+	and op.[Provider_Current] <> 'RDY'
+	and op.[Provider_Current] <> 'RTQ'
+	and op.[Provider_Current] <> 'RJ8'
+and [Commissioner_Type] <> 'Private Patient' 
+	and [Dimention_4] = 'Consultant led: Specific Acute'	
+	and o.regionname = 'South West'
+--    and left(Dimention_3, 3) NOT IN ('360', '812')
+
+GROUP BY					
+	op.[Provider_Current]	
+	,o.orgname
+	,op.Dimention_2
+	
+	,op.Dimention_3		
+	,op.Dimention_7			
+	,DATEPART(MONTH,op.[Attendance_Date])
+	,Datepart(Year,	op.[Attendance_Date])
+	,[Attendance_Date]
+	,o.stpname
+	,CASE					
+		WHEN op.[Dimention_1] LIKE 'Follow%' THEN 'Outpatient Follow-Up'
+		WHEN op.[Dimention_1] LIKE '1st%' THEN 'Outpatient First Appointment'
+
+	END 
+		,case when op.Der_Procedure_All is not null then 'Procedure' else 'NoProcedure' end
+		,PAT_Commissioner_Type)
+
+select
+'Provider' as 'Org Type'
+,Provider_Current	
+,orgname
+,Dimention_2
+,[Speciality Code]
+,[TFC]
+,tfc.Treatment_Function_Desc
+,HRG
+,hrg.HRG_chapter_description
+,hrg.HRG_Desc
+,CodedProcedure
+,[Month]
+,[Year]
+,[High_Level_Pod]	
+,[Attendance_Date]
+,o.stpname
+,PAT_Commissioner_Type
+,SUM([Total_Activity(Unadj)]) as 'Total_Activity(Unadj)'
+,SUM([Total_Activity(adj)]) as 'Total_Activity(adj)'
+	
+	
+ FROM CTE_op AS o
+ LEFT JOIN [NHSE_Sandbox_Operations].[Everyone].[UCSM_RefHRGFullTable] AS hrg
+on O.hrg = hrg.HRG_Code
+
+left join [NHSE_Sandbox_Operations].[Everyone].[UCSM_RefTFCs] as tfc
+on o.TFC = tfc.Treatment_Function_Code	
+
+--left join [NHSI_Sandbox].[Everyone].[tbl_mainspecialtycode_ab] as spec
+--on o.[Speciality Code] = spec.MainSpecialityCode
+						
+
+--left join [NHSI_Sandbox].[Everyone].[tbl_mainspecialtycode_ab] as spec2
+--on o.[Speciality Code2] = spec2.MainSpecialityCode
+
+ GROUP BY 
+Provider_Current	
+,orgname
+,Dimention_2
+,[Speciality Code]
+,[TFC]
+,tfc.Treatment_Function_Desc
+,HRG
+,hrg.HRG_chapter_description
+,hrg.HRG_Desc
+,CodedProcedure
+,[Month]
+,[Year]
+,[High_Level_Pod]
+,[Attendance_Date]
+,o.stpname
+,PAT_Commissioner_Type
+GO
