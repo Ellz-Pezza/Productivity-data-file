@@ -1,14 +1,9 @@
-# {PROJECT NAME}
+# Productivity Data Files
 ## NHS England South West Intelligence and Insights
 
 ### About the Project
 
-{ADD EXPERIMENTAL STATUS BADGE IF PROJECT IS IN DEVELOPMENT}
-[![status: experimental](https://github.com/GIScience/badges/raw/master/status/experimental.svg)](https://github.com/GIScience/badges#experimental)
-
-This repository holds code for the {PROJECT NAME} {SHORT DESCRIPTION}
-
-_**Note:** Only public or fake data are shared in this repository._
+Sql code used to pull South West Productivity data (currently from NCDR) then utilising R to wrangle the data than create an Excel that shows the data per Trust or System.
 
 ### Project Stucture
 
@@ -19,15 +14,8 @@ _**Note:** Only public or fake data are shared in this repository._
 
 ### Built With
 
-{LIST SOFTWARE USED TO CREATE PROJECT}
-
 [R Studio](http://www.rstudio.com/.)  
-[R Statistical Software](https://www.R-project.org/.)  
 [SQL SSMS](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16)  
-[!Python v3.8](https://www.python.org/downloads/release/python-380/)  
-
-- {LIST OF MAIN PACKAGE VERSIONS}
-
 
 ### Getting Started
 
@@ -37,24 +25,16 @@ To get a local copy up and running follow these simple steps.
 
 To clone the repo:
 
-`git clone https://github.com/nhsx/{REPO NAME}`
+`git clone https://github.com/nhsx/Productivity-data-file
 
-{ADDITIONAL TECHNICAL SUPPORT AND NEEDS} 
-
-### Usage
-{DESCRIPTION OF CODE}
-{DESCRIPTION OF PROCESS AND TECHNIQUES UTILISED}
-{METHODOLOGY USED}
 
 #### Outputs
-{LIST AND DESCRIPTION OF OUTPUTS}
-
-{NOTES ON REPRODUCIBILITY OF RESULTS}
+Excel file per Trust and System
 
 #### Datasets
-{DESCRIPTION AND LINKS TO DATASETS}
-
-{LINK TO FAKE DATA TO SUPPORT INITAIL CODE RUNS}
+[NHSE_SUSPlus_Reporting].[Data].[PAT_Intermediate_Table_OP]
+[NHSE_SUSPlus_Reporting].[Data].[PAT_Intermediate_Table_APC]
+[NHSE_SUSPlus_Reporting].[Data].[PAT_Intermediate_Table_AE]
 
 ### Roadmap
 
@@ -90,5 +70,5 @@ of the [Open Government 3.0][ogl] licence.
 
 To find out more about the South West Intelligence and Insights Team visit our [South West Intelligence and Insights Team Futures Page](https://future.nhs.uk/SouthWestAnalytics)) or get in touch at [england.southwestanalytics@nhs.net](mailto:england.southwestanalytics@nhs.net).
 
-<!-- ### Acknowledgements -->
+
 
