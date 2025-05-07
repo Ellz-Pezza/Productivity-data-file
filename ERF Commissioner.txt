@@ -1,0 +1,50 @@
+SELECT [Activity_Type]
+      ,[Der_Activity_Month]
+      ,[Provider_Type]
+ --     ,[Final_Patient_CCG_2425]
+      ,[Provider_or_IS_ICS_Code]
+--      ,[Der_Commissioner_Code]
+      ,[STP_ICS]
+      ,[Centralised_NHSE_Commissioned]
+      ,[HRG]
+      ,[TFC]
+      ,[Der_Provider_Site_Code]
+	  ,p.Provider_Site_Name
+      --,[Service_Line_Code_Cost]
+      --,[National_Service_Line]
+      --,[Local_Service_Line]
+      --,[Final_Service_Line]
+      --,[Delegation_Service_Line]
+      ,sum([Activity]) as Activity
+      ,sum([Total_Cost_Inc_MFF]) as Total_Cost_Inc_MFF
+      ,sum([Total_Cost_SSC_Inc_MFF]) as Total_Cost_SSC_Inc_MFF
+      ,sum([Total_Cost_Inc_MFF_WO_SSC]) as Total_Cost_Inc_MFF_WO_SSC
+
+  FROM [NHSI_Sandbox].[GEM\DBradley2].[everyone.ERF_2024-25_Time_Series_HRG_TFC_SITE_V9_DNT_USE]
+
+	left join [NHSE_Reference].[dbo].[tbl_Ref_ODS_ProviderSite] as p
+	on [Der_Provider_Site_Code] = p.Provider_Site_Code
+
+  Where [STP_ICS] in (
+		'QOX',
+		'QUY',
+		'QT6',
+		'QJK',
+		'QVV',
+		'QR1',
+		'QSL')
+
+Group by [Activity_Type]
+      ,[Der_Activity_Month]
+      ,[Provider_Type]
+ --     ,[Final_Patient_CCG_2425]
+      ,[Provider_or_IS_ICS_Code]
+--      ,[Der_Commissioner_Code]
+      ,[STP_ICS]
+      ,[Centralised_NHSE_Commissioned]
+      ,[HRG]
+      ,[TFC]
+      ,[Der_Provider_Site_Code]
+	  ,p.Provider_Site_Name
+
+GO
